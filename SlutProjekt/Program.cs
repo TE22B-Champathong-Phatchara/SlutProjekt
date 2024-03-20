@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading.Channels;
 
 string name;
 string yn;
@@ -7,6 +8,14 @@ string yn;
 bool undead = false;
 
 string choose;
+bool adv = false;
+bool mag = false;
+
+int Floor = 1;
+
+bool EnimyIsDead = false;
+
+string Command;
 
 Console.ForegroundColor = ConsoleColor.Red;
 Console.WriteLine("_________________________________________________________\n");
@@ -44,30 +53,37 @@ while(true)
 
 }
 
-List<string> classes = new List<string>(["Adventurer" , "Mage" , "Archer"]);
-
-if (undead == false){
-    classes.Add("LOCKED");
-}
-if (undead == true)
-{
-    classes.Add("Undead");
-}
 
 
-foreach (var role in classes)
-{
-    System.Console.WriteLine(role);
-}
 
-choose = Console.ReadLine().ToLower();
+
+
+
 
 while(true)
 {
+    List<string> classes = new List<string>(["Adventurer" , "Mage" , "Archer"]);
+
+    if (undead == false){
+        classes.Add("LOCKED");
+    }
+    if (undead == true)
+    {
+        classes.Add("Undead");
+    }
+
+    foreach (var role in classes)
+    {
+        System.Console.WriteLine(role + "\n");
+    }
+
+
+
+    choose = Console.ReadLine().ToLower();
+
     if(choose == "adventurer" || choose.Contains("ad"))
     {
-        System.Console.WriteLine("The Adventurer class specializes in physical melee attacks as its main source of damage. You will have high STM (stamina), HP (health points), and DEF (defense) with average ATK (attack). However, you can't use magic; instead, you can use items to deal magic damage.");
-        System.Console.WriteLine("You possess a shield that can reduce incoming damage by 5, but you will lose one turn. Additionally, you have a 'Charge Attack' skill that, when used, takes one turn and automatically attacks enemies with 3x damage.");
+        System.Console.WriteLine("\nThe Adventurer class specializes in physical melee attacks as its main source of damage. You can't use magic; instead, you can use items to deal magic damage.");
         System.Console.WriteLine("As a starting bonus, you receive 2x small healing potions (each healing 20 HP).");
         System.Console.WriteLine("Are you sure you want to start as the Adventurer?");
 
@@ -76,6 +92,7 @@ while(true)
         if (yn.Contains('y') || yn == "yes")
         {
             System.Console.WriteLine("Alright, let's start");
+            adv = true;
             break;
         }
         else if (yn.Contains('n') || yn == "no")
@@ -83,11 +100,99 @@ while(true)
             System.Console.WriteLine("Alright, let's decide again.");
             continue;
         }
-        
+    }
 
+    else if(choose == "mage" || choose.Contains("ma"))
+    {
+        System.Console.WriteLine("The Mage class specializes in magic attacks");
+        
+        yn = Console.ReadLine().ToLower();
+
+        if (yn.Contains('y') || yn == "yes")
+        {
+            System.Console.WriteLine("Alright, let's start");
+            mag = true;
+            break;
+        }
+        else if (yn.Contains('n') || yn == "no")
+        {
+            System.Console.WriteLine("Alright, let's decide again.");
+            continue;
+        }
+    }
+
+    else{
+        System.Console.WriteLine("Ivalid input.");
+        continue;
     }
 
 }
 
+Char PlStat = new Char();
+
+Char Enemy = new Char();
+PlStat.IsDead();
+Enemy.IsDead();
+
+Mechanics(PlStat, Enemy);
+if (adv == true)
+{
+    
+
+
+    PlStat.GetName = name;
+    PlStat.HP = 100;
+    PlStat.ATK = Random.Shared.Next(10,15);
+    
+
+    System.Console.WriteLine(PlStat.GetName);
+    while(Floor != 100)
+    {
+        if (Floor == 1 && EnimyIsDead == false)
+        {
+            Enemy.GetName = "The Rat";
+            Enemy.HP = 20;
+            Enemy.ATK = Random.Shared.Next(2,5);
+
+            System.Console.WriteLine($"You've faced {Enemy.GetName}");
+
+            while(EnimyIsDead == false)
+            {
+                Command = Console.ReadLine().ToLower();a
+
+            }
+        }
+    }
+}
+if(mag == true)
+
+
+
 
 Console.ReadLine();
+
+
+
+
+
+
+
+
+
+
+
+
+static void Mechanics(Char PlStat, Char Enemy)
+{
+    if (PlStat.AGI > Enemy.AGI)
+    {
+        int Chance = PlStat.AGI - Enemy.AGI;
+        int Dodge = Random.Shared.Next(0, Chance);
+
+        if (Dodge > 5)
+        {
+            System.Console.WriteLine("The enemy missed the attack!");
+        }
+    }
+
+}
