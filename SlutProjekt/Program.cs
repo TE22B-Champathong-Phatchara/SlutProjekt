@@ -13,7 +13,7 @@ bool mag = false;
 
 int Floor = 1;
 
-bool EnimyIsDead = false;
+bool EnemyIsDead = false;
 
 string Command;
 
@@ -131,34 +131,63 @@ while(true)
 Char PlStat = new Char();
 
 Char Enemy = new Char();
-PlStat.IsDead();
-Enemy.IsDead();
 
-Mechanics(PlStat, Enemy);
+
 if (adv == true)
 {
     
 
 
     PlStat.GetName = name;
-    PlStat.HP = 100;
-    PlStat.ATK = Random.Shared.Next(10,15);
+    PlStat.AGI = 10;
     
 
     System.Console.WriteLine(PlStat.GetName);
     while(Floor != 100)
     {
-        if (Floor == 1 && EnimyIsDead == false)
+        if (Floor == 1)
         {
             Enemy.GetName = "The Rat";
             Enemy.HP = 20;
-            Enemy.ATK = Random.Shared.Next(2,5);
+            
+            Enemy.AGI = 12;
 
             System.Console.WriteLine($"You've faced {Enemy.GetName}");
 
-            while(EnimyIsDead == false)
+            while(EnemyIsDead == false)
             {
-                Command = Console.ReadLine().ToLower();a
+                PlStat.ATK = Random.Shared.Next(10,15);
+                
+                Command = Console.ReadLine().ToLower();
+
+                if (Command == "help")
+                {
+                    System.Console.WriteLine("This this command list:");
+                    continue;
+                }
+                else if(EnemyIsDead == false)
+                {
+                    
+                    Mechanics(PlStat, Enemy);
+                    PlStat.HP = Enemy.HP - PlStat.ATK;
+                    System.Console.WriteLine($"You deal {PlStat.ATK} damage to enemy!");
+                    System.Console.WriteLine($"Enemy's  HP is now {Enemy.HP}!");
+
+                    if (Enemy.HP <= 0)
+                    {
+                        Enemy.IsDead();
+                        EnemyIsDead = true;
+                    }
+                    else
+                    {
+                        PlStat.HP = 100;
+                        Enemy.ATK = Random.Shared.Next(2,5);
+                        PlStat.HP = PlStat.HP - Enemy.ATK;
+                        System.Console.WriteLine($"Enemy deal {Enemy.ATK} damage to you!");
+                        System.Console.WriteLine($"your HP is now {PlStat.HP}!");
+                    }
+                }
+                
 
             }
         }
@@ -192,6 +221,7 @@ static void Mechanics(Char PlStat, Char Enemy)
         if (Dodge > 5)
         {
             System.Console.WriteLine("The enemy missed the attack!");
+            PlStat.ATK = 0;
         }
     }
 
