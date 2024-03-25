@@ -140,16 +140,15 @@ if (adv == true)
 
     PlStat.GetName = name;
     PlStat.AGI = 10;
+    PlStat.HP = 100;
     
 
-    System.Console.WriteLine(PlStat.GetName);
     while(Floor != 100)
     {
         if (Floor == 1)
         {
             Enemy.GetName = "The Rat";
             Enemy.HP = 20;
-            
             Enemy.AGI = 12;
 
             System.Console.WriteLine($"You've faced {Enemy.GetName}");
@@ -157,7 +156,7 @@ if (adv == true)
             while(EnemyIsDead == false)
             {
                 PlStat.ATK = Random.Shared.Next(10,15);
-                
+                PlStat.HP = 100;
                 Command = Console.ReadLine().ToLower();
 
                 if (Command == "help")
@@ -165,27 +164,32 @@ if (adv == true)
                     System.Console.WriteLine("This this command list:");
                     continue;
                 }
-                else if(EnemyIsDead == false)
+                if(EnemyIsDead == false)
                 {
                     
                     Mechanics(PlStat, Enemy);
-                    PlStat.HP = Enemy.HP - PlStat.ATK;
+                    int EnemyAfHP = Enemy.HP - PlStat.ATK;
                     System.Console.WriteLine($"You deal {PlStat.ATK} damage to enemy!");
-                    System.Console.WriteLine($"Enemy's  HP is now {Enemy.HP}!");
+                    System.Console.WriteLine($"Enemy's  HP is now {EnemyAfHP}!");
 
-                    if (Enemy.HP <= 0)
-                    {
-                        Enemy.IsDead();
-                        EnemyIsDead = true;
-                    }
-                    else
-                    {
-                        PlStat.HP = 100;
-                        Enemy.ATK = Random.Shared.Next(2,5);
-                        PlStat.HP = PlStat.HP - Enemy.ATK;
-                        System.Console.WriteLine($"Enemy deal {Enemy.ATK} damage to you!");
-                        System.Console.WriteLine($"your HP is now {PlStat.HP}!");
-                    }
+                    // if (Enemy.HP <= 0)
+                    // {
+                    //     Enemy.IsDead();
+                    //     EnemyIsDead = true;
+            
+                    // }
+                    // else
+                    // {
+                        
+                    //     Enemy.ATK = Random.Shared.Next(2,5);
+                    //     int AfHP = PlStat.HP - Enemy.ATK;
+                    //     System.Console.WriteLine($"Enemy deal {Enemy.ATK} damage to you!");
+                    //     System.Console.WriteLine($"your HP is now {AfHP}!");
+                    // }
+
+                    
+
+                    
                 }
                 
 
