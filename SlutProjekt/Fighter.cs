@@ -37,7 +37,7 @@ class Char
             
             if (ChanceToMiss > 5)
             {
-                System.Console.WriteLine("Missed!");
+                System.Console.WriteLine($"{GetName} missed!");
                 return true;
             }   
             
