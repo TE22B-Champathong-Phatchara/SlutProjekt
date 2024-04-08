@@ -23,7 +23,7 @@ class Char
     {
         if(HP <= 0)
         {
-            System.Console.WriteLine($"{GetName} Is Dead!");
+            System.Console.WriteLine($"\n{GetName} Is dead!\n");
             return true;
         }
         return false;
@@ -54,8 +54,8 @@ class Char
     {
         if(STM <= 0)
         {
-            System.Console.WriteLine("You are too tired to swing your sword.");
-            System.Console.WriteLine("Your death approches.");
+            System.Console.WriteLine("\nYou are too tired to swing your sword.");
+            System.Console.WriteLine("Your death approches.\n");
             return true;
         }
         return false;
