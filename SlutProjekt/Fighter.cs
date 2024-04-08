@@ -8,6 +8,8 @@ class Char
 {
     public int HP;
     public int BaseHP;
+    public int STM;
+    public int BaseSTM;
     public int ATK;
 
     public int AGI;
@@ -37,10 +39,24 @@ class Char
             
             if (ChanceToMiss > 5)
             {
-                System.Console.WriteLine($"{GetName} missed!");
-                return true;
+                if(HP > 0 )
+                {
+                    System.Console.WriteLine($"{GetName} missed!");
+                    return true;
+                }
             }   
             
+        }
+        return false;
+    }
+
+    public bool Tired()
+    {
+        if(STM <= 0)
+        {
+            System.Console.WriteLine("You are too tired to swing your sword.");
+            System.Console.WriteLine("Your death approches.");
+            return true;
         }
         return false;
     }

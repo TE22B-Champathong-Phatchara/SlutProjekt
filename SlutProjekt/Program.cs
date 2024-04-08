@@ -15,6 +15,7 @@ bool GameOver;
 
 
 string Command;
+bool TurnUsed;
 
 Console.ForegroundColor = ConsoleColor.Red;
 Console.WriteLine("_________________________________________________________\n");
@@ -83,6 +84,8 @@ while (true)
         continue;
     }
     
+    PlStat.STM = 300;
+    PlStat.BaseSTM = 300;
     PlStat.SPD = 10;
     PlStat.BaseHP = 100;
     PlStat.HP = 100;
@@ -103,7 +106,7 @@ while (true)
         Enemy.BaseHP = 20 + (Floor - 1) * 10;
         Enemy.SPD = 12;
         Enemy.AGI = 1;
-        Enemy.GetName = "The Rat";
+        Enemy.GetName = "The Enemy";
 
 
         
@@ -117,51 +120,114 @@ while (true)
 
         Thread.Sleep(500);
         System.Console.WriteLine($"You encounter an enemy!\n");
-        System.Console.WriteLine($"{Enemy.GetName}'s HP : [{Enemy.HP}/{Enemy.BaseHP}]");
+        System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m's HP : [{Enemy.HP}/{Enemy.BaseHP}]");
         System.Console.WriteLine($"\n\u001b[36m{PlStat.GetName}\u001b[0m's HP: [{PlStat.HP}/{PlStat.BaseHP}]");
 
         while (true)
         {
+            TurnUsed = false;
             PlStat.ATK = Random.Shared.Next(10, 15);
             Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
 
             Command = Console.ReadLine().ToLower();
-            // Mechanics(PlStat, Enemy);
 
             if (Command == "help")
             {
                 System.Console.WriteLine("This is the command list:\n[Enter] to Attack.\nWrite 'stat' to veiw your status.\nWrite 'skill' for open skills list.\nWrite 'item' for items list.\nWrite 'run' or 'esc' to escape the enemy to previous floor (Chances up to your SPD).");
+                System.Console.WriteLine("\n\u001b[33mTips: you can type info after the name of skill or item to the information.\u001b[0m\n");
                 System.Console.WriteLine("\n[Enter] to continue.\n");
                 continue;
             }
             if (Command == "stats" || Command == "stat")
             {
-                System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Status: HP: [{PlStat.HP}/{PlStat.BaseHP}]\nSTR: [10]\nAGI: [{PlStat.AGI}]\nSPD: [{PlStat.SPD}]");
+                System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Status: \nHP: [{PlStat.HP}/{PlStat.BaseHP}]\nStamina: [{PlStat.STM}/{PlStat.BaseSTM}]\nSTR: [10]\nAGI: [{PlStat.AGI}]\nSPD: [{PlStat.SPD}]");
                 System.Console.WriteLine("\n[Enter] to continue.\n");
                 continue;
             }
             if (Command == "skill")
             {
-                List<string> SkillList = new () {"Guarding. "};
+                List<string> SkillList = new () {"Guarding", "Charge Attack"};
+                System.Console.WriteLine("");
+                foreach (var skills in SkillList)
+                {
+                    System.Console.WriteLine(skills);
+                }
+                System.Console.WriteLine("\n[Enter to continue]\n");
+                Console.ReadLine();
+                continue;
+            }
+            if(Command.Contains("guar") && Command.Contains("info"))
+            {
+                System.Console.WriteLine("\nReduce incoming damage by 5.\nConsumes 10 stamina.\n");
+                continue;
+            }
+            else if(Command.Contains("guar"))
+            {
+                System.Console.WriteLine("\nYou raise up your shield.");
+                Thread.Sleep(500);
+                System.Console.WriteLine("10 stamina consumed.\n");
+                PlStat.STM = PlStat.STM - 10;
+            }
+            if(Command.Contains("char") && Command.Contains("info"))
+            {
+                System.Console.WriteLine("\nDeal critical damage for the next attack.\nConsumes 25 stamina.\n");
+                continue;
+            }
+            else if(Command.Contains("char"))
+            {
+                System.Console.WriteLine("\nYou make a concentrate to your next attack.");
+                Thread.Sleep(500);
+                System.Console.WriteLine("25 stamina consumed.\n");
+                PlStat.ATK = PlStat.ATK * 2;
+                PlStat.STM = PlStat.STM - 25;
+            }
+
+
+            if (Command == "item")
+            {
+                List<string> ItemList = new List<string>();
+
+                if (ItemList.Count == 0)
+                {
+                    System.Console.WriteLine("\nYou don't have anything in your inventory.\n");
+                    continue;
+                }
+                else
+                {
+                    System.Console.WriteLine("");
+                    foreach (string item in ItemList)
+                    {
+                        System.Console.WriteLine(item);
+                        continue;
+                    }
+                }
             }
 
 
 
 
 
-            Enemy.HP = Enemy.HP - PlStat.ATK;
-            System.Console.WriteLine($"You deal {PlStat.ATK} damage to the enemy!");
-            Thread.Sleep(500);
-            System.Console.WriteLine($"\n{Enemy.GetName}'s HP : [{Enemy.HP}/{Enemy.BaseHP}]");
-            Missed(Enemy, PlStat, Floor);
+            if(PlStat.HP > 0 && TurnUsed == false)
+            {
+                Enemy.HP = Enemy.HP - PlStat.ATK;
+                System.Console.WriteLine($"You deal {PlStat.ATK} damage to the enemy!");
+                Thread.Sleep(500);
+                System.Console.WriteLine($"\n{Enemy.GetName}'s HP : [{Enemy.HP}/{Enemy.BaseHP}]");
+                
+            }
             
+            Missed(Enemy, PlStat, Floor);
+
             if (!EnemyIsDead)
             {
                 EnemyIsDead = Enemy.IsDead();
                 HeroIsdead = PlStat.IsDead();
                 if(EnemyIsDead)
                 {
+                    Thread.Sleep(1000);
+                    System.Console.WriteLine("Moving to next floor.\n1 stamina used.");
                     Floor++;
+                    PlStat.STM--;
                     break;
                 }
                 if (HeroIsdead)
@@ -179,7 +245,7 @@ while (true)
                         }
                         else if (yn.Contains('n') || yn == "no")
                         {
-                            System.Console.WriteLine("How hilarious, why do human give up so easy?");
+                            System.Console.WriteLine("Understood. You can pick up your sword again anytime.");
                             Thread.Sleep(3000);
                             System.Environment.Exit(0);
                         }
