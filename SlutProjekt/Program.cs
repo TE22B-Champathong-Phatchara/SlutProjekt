@@ -72,6 +72,12 @@ while (true)
         PlStat.GetName = name;
         while(true)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                System.Console.WriteLine("\nYou can't leave you name empty!\n");
+                break;
+            }
+
             System.Console.WriteLine($"\nIs your name '{name}'?\n");
 
             yn = Console.ReadLine().ToLower();
