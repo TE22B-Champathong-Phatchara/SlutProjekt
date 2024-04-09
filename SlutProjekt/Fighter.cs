@@ -11,6 +11,7 @@ class Char
     public int STM;
     public int BaseSTM;
     public int ATK;
+    public int BaseATK;
 
     public int AGI;
     public string GetName;

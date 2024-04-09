@@ -11,16 +11,19 @@ string name;
 string yn;
 
 
+
 bool GameOver;
 
-int potions = 3;
-int BiggerPotion = 2;
 
-int coinsdrop;
-int coins;
+
+
 
 string Command;
 bool TurnUsed;
+
+
+
+
 
 Console.ForegroundColor = ConsoleColor.Red;
 Console.WriteLine("_________________________________________________________\n");
@@ -42,6 +45,24 @@ System.Console.WriteLine("Let's give a name for the hero who dares to beat the t
 bool NameCon = false;
 while (true)
 {
+    int coinsdrop;
+    int coins;
+    PlStat.STM = 300;
+    PlStat.BaseSTM = 300;
+    PlStat.SPD = 10;
+    PlStat.BaseHP = 100;
+    PlStat.HP = 100;
+    PlStat.AGI = 13;
+    PlStat.SPD = 10;
+    PlStat.BaseATK = 10;
+    int potionPrice = 20;
+    int BigpotionPrice = 50;
+    int ATKprice = 100;
+    int HPprice = 100;
+    int STRup= 0;
+    coins = 0;
+    int potions = 0;
+    int BiggerPotion = 0;
     
     while(!NameCon)
     {
@@ -84,15 +105,7 @@ while (true)
 
     Char Enemy = new Char();
     
-    PlStat.STM = 300;
-    PlStat.BaseSTM = 300;
-    PlStat.SPD = 10;
-    PlStat.BaseHP = 100;
-    PlStat.HP = 100;
-    PlStat.AGI = 13;
-    PlStat.SPD = 10;
-    coins = 0;
-
+    
 
     System.Console.WriteLine("\n\u001b[33mTips: type 'help' to veiw the commands.\n\u001b[0m");
     
@@ -100,6 +113,10 @@ while (true)
     int Floor = 1;
     while (Floor != 100 && GameOver == false)
     {
+        
+
+        
+
 
         bool EnemyIsDead = false;
         bool HeroIsdead;
@@ -128,7 +145,7 @@ while (true)
         while (true)
         {
             TurnUsed = false;
-            PlStat.ATK = Random.Shared.Next(10, 15);
+            PlStat.ATK = Random.Shared.Next(10 + STRup, 15 + STRup);
             Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
 
             Command = Console.ReadLine().ToLower();
@@ -142,9 +159,9 @@ while (true)
             }
             if (Command == "stats" || Command == "stat")
             {
-                System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Status: \nHP: [{PlStat.HP}/{PlStat.BaseHP}]\nStamina: [{PlStat.STM}/{PlStat.BaseSTM}]\nSTR: [10]\nAGI: [{PlStat.AGI}]\nSPD: [{PlStat.SPD}]");
+                System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Status: \nHP: [{PlStat.HP}/{PlStat.BaseHP}]\nStamina: [{PlStat.STM}/{PlStat.BaseSTM}]\nSTR: [{PlStat.BaseATK}]\nAGI: [{PlStat.AGI}]\nSPD: [{PlStat.SPD}]");
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                System.Console.WriteLine($"\nCoins(s): [{coins}]");
+                System.Console.WriteLine($"\nCoins(s): [{coins}] Gold.");
                 Console.ResetColor();
                 System.Console.WriteLine("\n[Enter] to continue.\n");
                 continue;
@@ -253,6 +270,7 @@ while (true)
                 System.Console.WriteLine($"\nHealed {healAmount2} amount of HP.");
                 Thread.Sleep(500);
                 System.Console.WriteLine("1 Big Healing Potion consumed");
+                BiggerPotion --;
                 TurnUsed = true;
             }
             else if (PotionContains(Command) && potions > 0 && PlStat.HP < PlStat.BaseHP)
@@ -262,6 +280,7 @@ while (true)
                 System.Console.WriteLine($"\nHealed {healAmount1} amount of HP.");
                 Thread.Sleep(500);
                 System.Console.WriteLine("1 Healing Potion consumed.\n");
+                potions --;
                 TurnUsed = true;
             }
             
@@ -288,7 +307,7 @@ while (true)
                 
             }
 
-            Missed(Enemy, PlStat, Floor);
+            Missed(Enemy, PlStat, Floor, STRup);
 
             if (!EnemyIsDead)
             {
@@ -299,7 +318,7 @@ while (true)
                 if(EnemyIsDead)
                 {
                     Thread.Sleep(500);
-                    coinsdrop = Random.Shared.Next(2 + Floor, 6 + Floor);
+                    coinsdrop = Random.Shared.Next(3 + Floor, 6 + Floor);
                     coins = coins + coinsdrop;
 
                     System.Console.WriteLine($"\nCoin(s) obtained [{coinsdrop}]\n");
@@ -308,31 +327,186 @@ while (true)
                     PlStat.STM = PlStat.STM - StaminaLoses;
                     System.Console.WriteLine($"Moving to next floor.\n{StaminaLoses} stamina used.");
                     
-                    
                     Floor++;
 
                     if (Floor > 5)
                     {
-                        int SafeZone = Random.Shared.Next(10);
+                        
+                        int SafeZone = Random.Shared.Next(1, 10);
 
                         if (SafeZone > 5)
                         {
-                            System.Console.WriteLine("\nYou have enter the Safe Zone.");
+                            System.Console.WriteLine("_______________________________________________________________________________________________________\n");
+                            System.Console.WriteLine("You entered the Safe Zone.");
+                            System.Console.WriteLine("_______________________________________________________________________________________________________\n");
                             Thread.Sleep(1000);
                             System.Console.WriteLine("\nThe Mystery Market has appeared!");
                             System.Console.WriteLine("You feel you can rest here. However, you're limited with the time in the Safe Zone.");
-                            System.Console.WriteLine("You need to choose wisely. Do you want to take a look at the shop or rest to recover 50 statmina?\n");
+                            System.Console.WriteLine("You need to choose wisely. Do you want to take a look at the \u001b[32mmarket\u001b[0m or \u001b[32mrest\u001b[0m to recover 50 stamina?\n");
                             while (true)
                             {
-                                yn = Console.ReadLine();
-                                if (YesContains(yn))
+                                Command = Console.ReadLine();
+
+                                if (Command.Contains("mar") || Command.Contains("shop"))
                                 {
-                                    List<string> ShopItems = new() {"Healing Potions", "Big Healing Potions", "ATK orb upgrade", "HP orb upgrade"};
+                                    System.Console.WriteLine("\nYou entered the Mystery Market.\n'Welcome' the voice appears in front of you. But there is no one in your sight.");
+                                    System.Console.WriteLine($"\nGold you have: {coins} Gold.\n");
+                                    
+                                    
+        
+                                    
+                                    System.Console.WriteLine("\n\u001b[33mTips: Write 'cancel' to exit the shop\u001b[0m");
+
+                                    
+
+                                    while(true)
+                                    {
+                                        bool Shop;
+                                        bool Continue;
+                                        
+                                        List<(string, int)> ShopItems = new() {("Healing Potions", potionPrice),  ("Big Healing Potions", BigpotionPrice), ("ATK orb upgrade", ATKprice), ("HP orb upgrade", HPprice)};
+                                        System.Console.WriteLine("_______________________________________________________________________________________________________\n");
+                                        
+                                        foreach (var item in ShopItems)
+                                        {
+                                            System.Console.WriteLine($"{item.Item1}: [{item.Item2}] Gold.");
+                    
+                                        }
+                                        System.Console.WriteLine("_______________________________________________________________________________________________________\n");
+                                        
+
+                                        System.Console.WriteLine("\n'What do you want?' The voice asks you.\n");
+
+                                        Command = Console.ReadLine().ToLower();
+
+                                        if(PotionContains(Command) && Command.Contains("big"))
+                                        {
+                                            System.Console.WriteLine("\nThe Bigger Healing Potion heals 50 amount of HP.");
+                                            Shop = ShopConfirm();
+                                            if(Shop && coins >= BigpotionPrice)
+                                            {
+                                                coins -= BigpotionPrice;
+                                                System.Console.WriteLine($"\nYou bought Big Healing Potion.\nYou have {coins} Gold left.");
+                                                BiggerPotion ++;
+                                                Continue = ContinueShop();
+                                                if(Continue)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else if (Shop && coins < BigpotionPrice)
+                                            {
+                                                System.Console.WriteLine("\nYou don't have enough Gold to buy that.\n");
+                                                continue;
+                                            }
+                                        }
+                                        else if (PotionContains(Command))
+                                        {
+                                            System.Console.WriteLine("\nThe Healing Potion heals 20 amount of HP.");
+                                            Shop = ShopConfirm();
+                                            if (Shop && coins >= potionPrice)
+                                            {
+                                                coins -= potionPrice;
+                                                System.Console.WriteLine($"You bought Healing Potion.\nYou have {coins} Gold left.");
+                                                potions ++;
+                                                Continue = ContinueShop();
+                                                if(Continue)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else if (Shop && coins < potionPrice)
+                                            {
+                                                System.Console.WriteLine("\nYou don't have enough Gold to buy that.\n");
+                                                continue;
+                                            }
+                                        }
+                                        
+
+                                        if (Command.Contains("atk"))
+                                        {
+                                            System.Console.WriteLine("\nIncrease your STR by 5.");
+                                            Shop = ShopConfirm();
+                                            if (Shop && coins >= ATKprice)
+                                            {
+
+                                                coins -= ATKprice;
+                                                System.Console.WriteLine($"Your STR increased by 5.\nYou have {coins} Gold left.");
+                                                PlStat.BaseATK += 5;
+                                                Continue = ContinueShop();
+                                                STRup += 5;
+                                                ATKprice += 20;
+
+
+                                                if(Continue)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else if (Shop && coins < ATKprice)
+                                            {
+                                                System.Console.WriteLine("\nYou don't have enough Gold to buy that.\n");
+                                                continue;
+                                            }
+                                            
+                                        }
+                                        if (Command.Contains("hp"))
+                                        {
+                                            System.Console.WriteLine("\nIncrease your HP by 10.");
+                                            Shop = ShopConfirm();
+                                            if (Shop && coins >= HPprice)
+                                            {
+                                                coins -= HPprice;
+                                                
+                                                System.Console.WriteLine($"Your HP increased by 10.\nYou have {coins} Gold left.");
+                                                PlStat.HP += 10;
+                                                PlStat.BaseHP += 10;
+                                                Continue = ContinueShop();
+                                                HPprice = HPprice + 20;
+
+                                                if(Continue)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else if (Shop && coins < HPprice)
+                                            {
+                                                System.Console.WriteLine("\nYou don't have enough Gold to buy that.\n");
+                                                continue;
+                                            }
+                                            
+                                        }
+                                        if (Command == "cancel")
+                                        {
+                                            Console.WriteLine("\nThanks for visiting. See you later.\n");
+                                            Thread.Sleep(500);
+                                            break;
+                                        }
+                                    }
+
+
+
                                     break;
                                 }
-                                else if (NoContains(yn))
+                                else if (Command.Contains("res"))
                                 {
-                                    System.Console.WriteLine("\nYou find some place to sleep. After you wake up the Mystery Market has disappeared.\n");
+                                    System.Console.WriteLine("\nYou find some place to sleep. After you wake up the Mystery Market was gone.\n");
                                     PlStat.STM += 50;
                                     break;
                                 }
@@ -397,7 +571,8 @@ while (true)
                     PlStat.HP = PlStat.HP - Enemy.ATK;
                     System.Console.WriteLine($"Enemy deals {Enemy.ATK} damage to you!");
                     Thread.Sleep(500);
-                    System.Console.WriteLine($"\n{PlStat.GetName}'s HP: [{PlStat.HP}/{PlStat.BaseHP}]\n");
+                    System.Console.WriteLine($"\n\u001b[36m{PlStat.GetName}\u001b[0m's HP: [{PlStat.HP}/{PlStat.BaseHP}]");
+                    System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Stamina: [{PlStat.STM}/{PlStat.BaseSTM}]\n");
                 }
                 
             }
@@ -414,7 +589,7 @@ while (true)
 
 
 
-static void Missed(Char Enemy, Char PlStat, int Floor)
+static void Missed(Char Enemy, Char PlStat, int Floor, int STRup)
 {
     bool EnemyMissed = Enemy.Missed();
     bool PlayerMissed = PlStat.Missed();
@@ -425,7 +600,7 @@ static void Missed(Char Enemy, Char PlStat, int Floor)
     }
     else if(!PlayerMissed)
     {
-        PlStat.ATK = Random.Shared.Next(10,15);
+        PlStat.ATK = Random.Shared.Next(10 + STRup, 15 + STRup);
     }
 
     if(EnemyMissed)
@@ -452,3 +627,53 @@ static bool NoContains(string yn)
     return yn.Contains('n') || yn == "no";
 }
 
+static bool ShopConfirm()
+{
+    System.Console.WriteLine("\nDo wish to buy that?\n");
+    while(true)
+    {
+        string yn = Console.ReadLine().ToLower();
+        if(YesContains(yn) || yn == "yes")
+        {
+            
+            return true;
+            
+        }
+        else if (NoContains(yn) || yn == "no")
+        {
+
+            System.Console.WriteLine("Understood.");
+            return false;
+        }
+        else
+        {
+            System.Console.WriteLine("\nPlease answer the question.\n");
+            continue;
+        }
+
+    }
+}
+
+static bool ContinueShop()
+{
+    System.Console.WriteLine("\nContinue Shopping?\n");
+    while(true)
+    {
+        string yn = Console.ReadLine().ToLower();
+        if(YesContains(yn) || yn == "yes")
+        {
+            
+            return true;
+        }
+        else if (NoContains(yn) || yn == "no")
+        {
+            System.Console.WriteLine("Thanks for purchased. Hope to see you again.");
+            return false;
+        }
+        else
+        {
+            System.Console.WriteLine("\nPlease answer the question.\n");
+            continue;
+        }
+    }
+}
