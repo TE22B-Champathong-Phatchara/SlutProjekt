@@ -13,8 +13,8 @@ string yn;
 
 bool GameOver;
 
-int potions = 0;
-int BiggerPotion = 0;
+int potions = 3;
+int BiggerPotion = 2;
 
 int coinsdrop;
 int coins;
@@ -55,7 +55,7 @@ while (true)
 
             yn = Console.ReadLine().ToLower();
 
-            if(yn == "y" || yn == "yes")
+            if(YesContains(yn))
             {
                 System.Console.WriteLine($"\nAlright {name} let's start!\n");
                 Thread.Sleep(2000);
@@ -63,7 +63,7 @@ while (true)
                 NameCon = true;
                 break;
             }
-            else if (yn == "n" || yn == "no")
+            else if (NoContains(yn))
             {
                 System.Console.WriteLine("\nLet's write it again.\n");
                 break;
@@ -130,8 +130,6 @@ while (true)
             TurnUsed = false;
             PlStat.ATK = Random.Shared.Next(10, 15);
             Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
-            System.Console.WriteLine(Enemy.ATK);
-            System.Console.WriteLine(Enemy.ATK);
 
             Command = Console.ReadLine().ToLower();
 
@@ -238,11 +236,45 @@ while (true)
                     continue;
                 }
             }
-            if ((Command.Contains("heal") || Command.Contains("pot")) && Command.Contains("info"))
+            if (PotionContains(Command) && Command.Contains("info") && Command.Contains("big"))
+            {
+                System.Console.WriteLine("\nHeals 50 amount of HP.\n");
+                continue;
+            }
+            if (PotionContains(Command) && Command.Contains("info"))
             {
                 System.Console.WriteLine("\nHeals 20 amount of HP.\n");
+                continue;
             }
-
+            if (PotionContains(Command) && Command.Contains("big") && BiggerPotion > 0 && PlStat.HP < PlStat.BaseHP)
+            {
+                int healAmount2 = Math.Min(50, PlStat.BaseHP - PlStat.HP);
+                PlStat.HP = PlStat.HP + healAmount2;
+                System.Console.WriteLine($"\nHealed {healAmount2} amount of HP.");
+                Thread.Sleep(500);
+                System.Console.WriteLine("1 Big Healing Potion consumed");
+                TurnUsed = true;
+            }
+            else if (PotionContains(Command) && potions > 0 && PlStat.HP < PlStat.BaseHP)
+            {
+                int healAmount1 = Math.Min(20, PlStat.BaseHP - PlStat.HP);
+                PlStat.HP = PlStat.HP + healAmount1;
+                System.Console.WriteLine($"\nHealed {healAmount1} amount of HP.");
+                Thread.Sleep(500);
+                System.Console.WriteLine("1 Healing Potion consumed.\n");
+                TurnUsed = true;
+            }
+            
+            else if (PotionContains(Command) && (BiggerPotion > 0 || potions > 0) && PlStat.HP == PlStat.BaseHP)
+            {
+                System.Console.WriteLine("Your HP is already full.");
+                continue;
+            }
+            else if (PotionContains(Command) && (potions <= 0 || BiggerPotion <= 0))
+            {
+                System.Console.WriteLine("\nYou don't have that.\n");
+                continue;
+            }
 
 
 
@@ -278,6 +310,44 @@ while (true)
                     
                     
                     Floor++;
+
+                    if (Floor > 5)
+                    {
+                        int SafeZone = Random.Shared.Next(10);
+
+                        if (SafeZone > 5)
+                        {
+                            System.Console.WriteLine("\nYou have enter the Safe Zone.");
+                            Thread.Sleep(1000);
+                            System.Console.WriteLine("\nThe Mystery Market has appeared!");
+                            System.Console.WriteLine("You feel you can rest here. However, you're limited with the time in the Safe Zone.");
+                            System.Console.WriteLine("You need to choose wisely. Do you want to take a look at the shop or rest to recover 50 statmina?\n");
+                            while (true)
+                            {
+                                yn = Console.ReadLine();
+                                if (YesContains(yn))
+                                {
+                                    List<string> ShopItems = new() {"Healing Potions", "Big Healing Potions", "ATK orb upgrade", "HP orb upgrade"};
+                                    break;
+                                }
+                                else if (NoContains(yn))
+                                {
+                                    System.Console.WriteLine("\nYou find some place to sleep. After you wake up the Mystery Market has disappeared.\n");
+                                    PlStat.STM += 50;
+                                    break;
+                                }
+                                else
+                                {
+                                    System.Console.WriteLine("\nWhat do you want to do?\n");
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+
+
+
                     break;
                 }
                 if (HeroIsdead)
@@ -287,7 +357,7 @@ while (true)
                     while(true)
                     {
                         yn = Console.ReadLine().ToLower();
-                        if (yn.Contains('y') || yn == "yes")
+                        if (YesContains(yn))
                         {
                             System.Console.WriteLine("May the light embraces.");
                             Thread.Sleep(2000);
@@ -295,7 +365,7 @@ while (true)
                             Console.Clear();
                             break;
                         }
-                        else if (yn.Contains('n') || yn == "no")
+                        else if (NoContains(yn))
                         {
                             System.Console.WriteLine("Understood. You can pick up your sword again anytime.");
                             Thread.Sleep(3000);
@@ -303,7 +373,7 @@ while (true)
                         }
                         else
                         {
-                            System.Console.WriteLine("Pleas answer the question.");
+                            System.Console.WriteLine("Please answer the question.");
                             continue;
                         }
                     }
@@ -366,5 +436,19 @@ static void Missed(Char Enemy, Char PlStat, int Floor)
     {
         Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
     }
+}
+
+static bool PotionContains(string Command)
+{
+    return Command.Contains("heal") || Command.Contains("pot");
+}
+
+static bool YesContains(string yn)
+{
+    return yn.Contains('y') || yn == "yes";
+}
+static bool NoContains(string yn)
+{
+    return yn.Contains('n') || yn == "no";
 }
 
