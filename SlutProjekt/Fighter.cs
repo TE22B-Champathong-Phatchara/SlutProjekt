@@ -30,26 +30,6 @@ class Char
         return false;
     }
 
-    public bool Missed()
-    {
-        
-        if(SPD > AGI)
-        {
-            Chance = SPD - AGI;
-            ChanceToMiss = Random.Shared.Next(0,Chance);
-            
-            if (ChanceToMiss > 5)
-            {
-                if(HP > 0 )
-                {
-                    System.Console.WriteLine($"{GetName} missed!");
-                    return true;
-                }
-            }   
-            
-        }
-        return false;
-    }
 
     public bool Tired()
     {

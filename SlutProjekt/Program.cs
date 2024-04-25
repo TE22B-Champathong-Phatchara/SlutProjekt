@@ -52,7 +52,6 @@ while (true)
     PlStat.SPD = 10;
     PlStat.BaseHP = 100;
     PlStat.HP = 100;
-    PlStat.AGI = 13;
     PlStat.SPD = 10;
     PlStat.BaseATK = 10;
     int potionPrice = 20;
@@ -128,8 +127,7 @@ while (true)
         bool HeroIsdead;
         Enemy.HP = 20 + (Floor - 1) * 10;
         Enemy.BaseHP = 20 + (Floor - 1) * 10;
-        Enemy.SPD = Random.Shared.Next(5,15);
-        Enemy.AGI = Random.Shared.Next(1,10);
+        Enemy.AGI = Random.Shared.Next(1,8);
         Enemy.GetName = "The Enemy";
 
 
@@ -147,9 +145,23 @@ while (true)
         System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m's HP : [{Enemy.HP}/{Enemy.BaseHP}]");
         System.Console.WriteLine($"\n\u001b[36m{PlStat.GetName}\u001b[0m's HP: [{PlStat.HP}/{PlStat.BaseHP}]");
         System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Stamina: [{PlStat.STM}/{PlStat.BaseSTM}]\n");
+        int SkillDuration = 0;
         bool Guarded = false;
+        bool Spdboost = false;
         while (true)
         {
+            if (Spdboost) 
+            {
+                if (SkillDuration >= 2) 
+                {
+                    PlStat.SPD = 10;
+                    Spdboost = false;
+                    SkillDuration = 0;    
+                } else {
+                    SkillDuration++; 
+                }
+            }
+            
             TurnUsed = false;
             PlStat.ATK = Random.Shared.Next(10 + STRup, 15 + STRup);
             Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
@@ -165,7 +177,7 @@ while (true)
             }
             if (Command == "stats" || Command == "stat")
             {
-                System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Status: \nHP: [{PlStat.HP}/{PlStat.BaseHP}]\nStamina: [{PlStat.STM}/{PlStat.BaseSTM}]\nSTR: [{PlStat.BaseATK}]\nAGI: [{PlStat.AGI}]\nSPD: [{PlStat.SPD}]");
+                System.Console.WriteLine($"\n\u001b[36m{PlStat.GetName}\u001b[0m's Status: \nHP: [{PlStat.HP}/{PlStat.BaseHP}]\nStamina: [{PlStat.STM}/{PlStat.BaseSTM}]\nSTR: [{PlStat.BaseATK}]\nAGI: [10]\nSPD: [{PlStat.SPD}]");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 System.Console.WriteLine($"\nCoins(s): [{coins}] Gold.");
                 Console.ResetColor();
@@ -174,7 +186,7 @@ while (true)
             }
             if (Command == "skill")
             {
-                List<string> SkillList = new () {"[Guarding]", "[Charge Attack]"};
+                List<string> SkillList = new () {"[Guarding]", "[Charge Attack]", "[Speed Boost]"};
                 System.Console.WriteLine("");
                 foreach (var skills in SkillList)
                 {
@@ -185,7 +197,7 @@ while (true)
             }
             if(Command.Contains("guar") && Command.Contains("info"))
             {
-                System.Console.WriteLine("\nReduce incoming damage by 5.\nConsumes 10 stamina.\n");
+                System.Console.WriteLine("\nReduce incoming damage by 8.\nConsumes 10 stamina.\n");
                 continue;
             }
             else if(Command.Contains("guar"))
@@ -225,6 +237,31 @@ while (true)
                     System.Console.WriteLine("\nYou don't have enough stamina to use that skill\n");
                     continue;
                 }
+            }
+            if ((Command.Contains("spe") || Command.Contains("boo")) && Command.Contains("info"))
+            {
+                System.Console.WriteLine("\nIncrease your SPD by 20 for two turns.\nConsumes 40 stamina.\n");
+                continue;
+            }
+            else if (Command.Contains("spe") || Command.Contains("boo"))
+            {
+                if (PlStat.STM >= 40)
+                {
+                    System.Console.WriteLine("\nYou pray for the God of Wind. Your body feels more agile.");
+                    Thread.Sleep(500);
+                    System.Console.WriteLine("40 stamina comsumed.\n");
+                    PlStat.STM = PlStat.STM - 40;
+                    PlStat.SPD = 20;  
+                    Spdboost = true; 
+                    SkillDuration = 1;
+                    TurnUsed = true;
+                }
+                else
+                {
+                    System.Console.WriteLine("\nYou don't have enough stamina to use that skill\n");
+                    continue;
+                }
+            
             }
 
 
@@ -300,21 +337,26 @@ while (true)
                 System.Console.WriteLine("\nYou don't have that.\n");
                 continue;
             }
+            
 
 
 
+            
+    
 
             if(PlStat.HP > 0 && TurnUsed == false)
             {
                 Enemy.HP = Enemy.HP - PlStat.ATK;
                 System.Console.WriteLine($"You deal {PlStat.ATK} damage to the enemy!");
                 Thread.Sleep(500);
-                System.Console.WriteLine($"\n{Enemy.GetName}'s HP : [{Enemy.HP}/{Enemy.BaseHP}]\n");
+                System.Console.WriteLine($"\n\u001b[91m{Enemy.GetName}\u001b[0m's HP : [{Enemy.HP}/{Enemy.BaseHP}]\n");
                 
             }
 
+            
             Missed(Enemy, PlStat, Floor, STRup);
 
+            
             if (!EnemyIsDead)
             {
                 EnemyIsDead = Enemy.IsDead();
@@ -326,6 +368,14 @@ while (true)
                     Thread.Sleep(500);
                     coinsdrop = Random.Shared.Next(3 + Floor, 6 + Floor);
                     coins = coins + coinsdrop;
+                    int potionsDrop = Random.Shared.Next(1,12);
+                    if(potionsDrop == 1)
+                    {
+                        Thread.Sleep(500);
+                        System.Console.WriteLine("\nThe Enemy had dropped an item!");
+                        System.Console.WriteLine("1x Healing Potion obtained.\n");
+                        potions++;
+                    }
 
                     System.Console.WriteLine($"\nCoin(s) obtained [{coinsdrop}]\n");
                     
@@ -348,12 +398,12 @@ while (true)
                             Thread.Sleep(1000);
                             System.Console.WriteLine("\nThe Mystery Market has appeared!");
                             System.Console.WriteLine("You feel you can rest here. However, you're limited with the time in the Safe Zone.");
-                            System.Console.WriteLine("You need to choose wisely. Do you want to take a look at the \u001b[32mmarket\u001b[0m or \u001b[32mrest\u001b[0m to recover 50 stamina?\n");
+                            System.Console.WriteLine("You need to choose wisely. Do you want to take a look at the \u001b[32mmarket\u001b[0m or \u001b[32mrest\u001b[0m to recover 70 stamina?\n");
                             while (true)
                             {
                                 Command = Console.ReadLine();
 
-                                if (Command.Contains("mar") || Command.Contains("shop"))
+                                if (Command.Contains("mar") || Command.Contains("sho"))
                                 {
                                     System.Console.WriteLine("\nYou entered the Mystery Market.\n'Welcome' the voice appears in front of you. But there is no one in your sight.");
                                     System.Console.WriteLine($"\nGold you have: {coins} Gold.\n");
@@ -510,10 +560,10 @@ while (true)
 
                                     break;
                                 }
-                                else if (Command.Contains("res"))
+                                else if (Command.Contains("re"))
                                 {
                                     System.Console.WriteLine("\nYou find some place to sleep. After you wake up the Mystery Market was gone.\n");
-                                    PlStat.STM += 50;
+                                    PlStat.STM += 70;
                                     break;
                                 }
                                 else
@@ -564,18 +614,18 @@ while (true)
                     
                     if (Guarded)
                     {  
-                        if (Enemy.ATK < 5)
+                        if (Enemy.ATK < 8)
                         {
                             Enemy.ATK = 0;
                         }
-                        else if (Enemy.ATK >= 5)
+                        else if (Enemy.ATK >= 8)
                         {
-                            Enemy.ATK = Enemy.ATK - 5;
+                            Enemy.ATK = Enemy.ATK - 8;
                         }
                     }
                     Guarded = false;
                     PlStat.HP = PlStat.HP - Enemy.ATK;
-                    System.Console.WriteLine($"Enemy deals {Enemy.ATK} damage to you!");
+                    System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m deals {Enemy.ATK} damage to you!");
                     Thread.Sleep(500);
                     System.Console.WriteLine($"\n\u001b[36m{PlStat.GetName}\u001b[0m's HP: [{PlStat.HP}/{PlStat.BaseHP}]");
                     System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Stamina: [{PlStat.STM}/{PlStat.BaseSTM}]\n");
@@ -596,26 +646,29 @@ while (true)
 
 
 static void Missed(Char Enemy, Char PlStat, int Floor, int STRup)
-{
-    bool EnemyMissed = Enemy.Missed();
-    bool PlayerMissed = PlStat.Missed();
 
-    if(PlayerMissed)
-    {
-        PlStat.ATK = 0;
-    }
-    else if(!PlayerMissed)
-    {
-        PlStat.ATK = Random.Shared.Next(10 + STRup, 15 + STRup);
-    }
+{   
 
-    if(EnemyMissed)
+
+    if (PlStat.SPD > Enemy.AGI)
     {
-        Enemy.ATK = 0;
-    }
-    else if(!EnemyMissed)
-    {
-        Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
+        // Console.WriteLine($"Debug: SPD = {PlStat.SPD}, AGI = {Enemy.AGI}");
+        int Chance = PlStat.SPD - Enemy.AGI;
+        int ChanceToMiss = Random.Shared.Next(0, Chance);
+        // Console.WriteLine($"Debug: Chance = {Chance}, ChanceToMiss = {ChanceToMiss}");
+        if (ChanceToMiss > 5)
+        {
+            if (PlStat.HP > 0 || Enemy.HP > 0)
+            {
+                System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m missed!");
+                Enemy.ATK = 0;
+            }
+        }
+        else
+        {
+            Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
+            PlStat.ATK = Random.Shared.Next(10 + STRup, 15 + STRup);
+        }
     }
 }
 
