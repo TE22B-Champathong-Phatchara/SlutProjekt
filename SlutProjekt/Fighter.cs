@@ -15,8 +15,6 @@ class Char
 
     public int AGI;
     public string GetName;
-    private int ChanceToMiss;
-    private int Chance;
 
     public int SPD;
 

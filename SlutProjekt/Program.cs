@@ -52,6 +52,7 @@ while (true)
     PlStat.SPD = 10;
     PlStat.BaseHP = 100;
     PlStat.HP = 100;
+    PlStat.AGI = 8;
     PlStat.SPD = 10;
     PlStat.BaseATK = 10;
     int potionPrice = 20;
@@ -60,6 +61,7 @@ while (true)
     int HPprice = 100;
     int STRup= 0;
     coins = 0;
+    coinsdrop = 0;
     int potions = 0;
     int BiggerPotion = 0;
     
@@ -107,6 +109,9 @@ while (true)
     }
 
     GameOver = false;
+    
+    bool Skill1 = false;
+    bool Skill2 = false;
 
     Char Enemy = new Char();
     
@@ -114,7 +119,7 @@ while (true)
 
     System.Console.WriteLine("\n\u001b[33mTips: type 'help' to veiw the commands.\n\u001b[0m");
     
-
+    bool BossStage = false;
     int Floor = 1;
     while (Floor != 100 && GameOver == false)
     {
@@ -122,14 +127,78 @@ while (true)
 
         
 
-
+        
         bool EnemyIsDead = false;
         bool HeroIsdead;
-        Enemy.HP = 20 + (Floor - 1) * 10;
-        Enemy.BaseHP = 20 + (Floor - 1) * 10;
-        Enemy.AGI = Random.Shared.Next(1,8);
-        Enemy.GetName = "The Enemy";
+        
 
+        Enemy.GetName = EnemiesName();
+        if (!BossStage)
+        {
+            
+            if (Enemy.GetName == "Rat")
+            {
+                Enemy.HP = 10 + (Floor - 1) * 10;
+                Enemy.BaseHP = 10 + (Floor - 1) * 10;
+                Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 4 + (Floor - 1));
+                Enemy.AGI = Random.Shared.Next(1,8);
+                Enemy.SPD = Random.Shared.Next(10,20);
+                coinsdrop = Random.Shared.Next(12 + Floor, 19 + Floor);
+
+            }
+            else if (Enemy.GetName == "Goblin")
+            {
+                Enemy.HP = 25 + (Floor - 1) * 10;
+                Enemy.BaseHP = 25 + (Floor - 1) * 10;
+                Enemy.ATK = Random.Shared.Next(3 +(Floor - 1), 5 + (Floor - 1));
+                Enemy.AGI = Random.Shared.Next(1,15);
+                Enemy.SPD = Random.Shared.Next(3,15);
+                coinsdrop = Random.Shared.Next(17 + Floor, 22 + Floor);
+            }
+            else if (Enemy.GetName == "Slime")
+            {
+                Enemy.HP = 30 + (Floor - 1) * 10;
+                Enemy.BaseHP = 30 + (Floor - 1) * 10;
+                Enemy.ATK = Random.Shared.Next(1 +(Floor - 1), 4 + (Floor - 1));
+                Enemy.AGI = Random.Shared.Next(1,8);
+                Enemy.SPD = Random.Shared.Next(3,17);
+                coinsdrop = Random.Shared.Next(14 + Floor, 18 + Floor);
+            }
+        }
+        else if (BossStage)
+        {
+            if (Enemy.GetName == "Rat")
+            {
+                Enemy.GetName = "The Rat King";
+                Enemy.HP = 150;
+                Enemy.BaseHP = 150;
+                Enemy.ATK = Random.Shared.Next(12,18);
+                Enemy.AGI = Random.Shared.Next(1,10);
+                Enemy.SPD = Random.Shared.Next(18,20);
+                coinsdrop = Random.Shared.Next(90, 120);
+
+            }
+            else if (Enemy.GetName == "Goblin")
+            {
+                Enemy.GetName = "The Goblin King";
+                Enemy.HP = 230;
+                Enemy.BaseHP = 230;
+                Enemy.ATK = Random.Shared.Next(10,25);
+                Enemy.AGI = Random.Shared.Next(5,15);
+                Enemy.SPD = Random.Shared.Next(5,15);
+                coinsdrop = Random.Shared.Next(100, 150);
+            }
+            else if (Enemy.GetName == "Slime")
+            {
+                Enemy.GetName = "The Slime King";
+                Enemy.HP = 350;
+                Enemy.BaseHP = 350;
+                Enemy.ATK = Random.Shared.Next(9,14);
+                Enemy.AGI = Random.Shared.Next(1,6);
+                Enemy.SPD = Random.Shared.Next(6,15);
+                coinsdrop = Random.Shared.Next(70, 100);
+            }
+        }
 
         
         
@@ -141,12 +210,22 @@ while (true)
         System.Console.WriteLine("_______________________________________________________________________________________________________\n");
 
         Thread.Sleep(500);
-        System.Console.WriteLine($"You encounter an enemy!\n");
+        if (BossStage)
+        {
+            System.Console.WriteLine("\n\u001b[34mThe Boss Has Appear!!\u001b[0m\n");
+            System.Console.WriteLine($"You encounter \u001b[91m{Enemy.GetName}\u001b[0m!\n");
+        }
+        else
+        {
+            System.Console.WriteLine($"You encounter a \u001b[91m{Enemy.GetName}\u001b[0m!\n");
+        }
+
         System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m's HP : [{Enemy.HP}/{Enemy.BaseHP}]");
         System.Console.WriteLine($"\n\u001b[36m{PlStat.GetName}\u001b[0m's HP: [{PlStat.HP}/{PlStat.BaseHP}]");
         System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Stamina: [{PlStat.STM}/{PlStat.BaseSTM}]\n");
         int SkillDuration = 0;
         bool Guarded = false;
+        bool ThornGuarded = false;
         bool Spdboost = false;
         while (true)
         {
@@ -164,7 +243,7 @@ while (true)
             
             TurnUsed = false;
             PlStat.ATK = Random.Shared.Next(10 + STRup, 15 + STRup);
-            Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
+            
 
             Command = Console.ReadLine().ToLower();
 
@@ -186,7 +265,25 @@ while (true)
             }
             if (Command == "skill")
             {
-                List<string> SkillList = new () {"[Guarding]", "[Charge Attack]", "[Speed Boost]"};
+                List<string> SkillList = new () {};
+                if (!Skill1)
+                {
+                    SkillList.Add("[Guarding]");
+                }
+                else if (Skill1)
+                {
+                    SkillList.Add("\u001b[35m[Guarding Thorns]\u001b[0m");
+                }
+                if (!Skill2)
+                {
+                    SkillList.Add("[Charge Attack]");
+                }
+                else if (Skill2)
+                {
+                    SkillList.Add("\u001b[35m[Super Charge Attack]\u001b[0m");
+                }
+                SkillList.Add("[Speed Boost]");
+
                 System.Console.WriteLine("");
                 foreach (var skills in SkillList)
                 {
@@ -195,12 +292,16 @@ while (true)
                 System.Console.WriteLine("\n[Enter] to continue\n");
                 continue;
             }
-            if(Command.Contains("guar") && Command.Contains("info"))
+            if(Command.Contains("guar") && Command.Contains("info") && !Skill1)
             {
                 System.Console.WriteLine("\nReduce incoming damage by 8.\nConsumes 10 stamina.\n");
                 continue;
             }
-            else if(Command.Contains("guar"))
+            else if(Command.Contains("guar") && Command.Contains("info") && Skill1)
+            {
+                System.Console.WriteLine("Reduce incoming damage by 8 and reflex back by 3.\nConsumes 10 stamina.\n");
+            }
+            else if(Command.Contains("guar") && !Skill1)
             {   
                 if (PlStat.STM >= 10)
                 {
@@ -217,12 +318,36 @@ while (true)
                     continue;
                 }
             }
-            if(Command.Contains("char") && Command.Contains("info"))
+            else if(Command.Contains("guar") && Skill1)
+            {   
+                if (PlStat.STM >= 10)
+                {
+                    System.Console.WriteLine("\nYou raise up your shield. You feel an uneasy power from it.");
+                    Thread.Sleep(500);
+                    System.Console.WriteLine("10 stamina consumed.\n");
+                    TurnUsed = true;
+                    ThornGuarded = true;
+                    PlStat.STM = PlStat.STM - 10;
+                }
+                else
+                {
+                    System.Console.WriteLine("\nYou don't have enough stamina to use that skill\n");
+                    continue;
+                }
+            }
+            
+            if(Command.Contains("char") && Command.Contains("info") && !Skill2)
             {
                 System.Console.WriteLine("\nDeal critical damage for the next attack.\nConsumes 25 stamina.\n");
                 continue;
             }
-            else if(Command.Contains("char"))
+            if(Command.Contains("char") && Command.Contains("info") && Skill2)
+            {
+                System.Console.WriteLine("\nDeal 4x damage for the next attack.\nConsumes 30 stamina.\n");
+                continue;
+            }
+
+            else if(Command.Contains("char") && !Skill2)
             {
                 if (PlStat.STM >= 25)
                 {
@@ -231,6 +356,22 @@ while (true)
                     System.Console.WriteLine("25 stamina consumed.\n");
                     PlStat.ATK = PlStat.ATK * 2;
                     PlStat.STM = PlStat.STM - 25;
+                }
+                else
+                {
+                    System.Console.WriteLine("\nYou don't have enough stamina to use that skill\n");
+                    continue;
+                }
+            }
+            else if(Command.Contains("char") && Skill2)
+            {
+                if (PlStat.STM >= 30)
+                {
+                    System.Console.WriteLine("\nYou make a concentrate to your next attack. The mysterious power makes you feel extra concentration.");
+                    Thread.Sleep(500);
+                    System.Console.WriteLine("30 stamina consumed.\n");
+                    PlStat.ATK = PlStat.ATK * 4;
+                    PlStat.STM = PlStat.STM - 30;
                 }
                 else
                 {
@@ -298,17 +439,17 @@ while (true)
             }
             if (PotionContains(Command) && Command.Contains("info") && Command.Contains("big"))
             {
-                System.Console.WriteLine("\nHeals 50 amount of HP.\n");
+                System.Console.WriteLine("\nHeals 70 amount of HP.\n");
                 continue;
             }
             if (PotionContains(Command) && Command.Contains("info"))
             {
-                System.Console.WriteLine("\nHeals 20 amount of HP.\n");
+                System.Console.WriteLine("\nHeals 30 amount of HP.\n");
                 continue;
             }
             if (PotionContains(Command) && Command.Contains("big") && BiggerPotion > 0 && PlStat.HP < PlStat.BaseHP)
             {
-                int healAmount2 = Math.Min(50, PlStat.BaseHP - PlStat.HP);
+                int healAmount2 = Math.Min(70, PlStat.BaseHP - PlStat.HP);
                 PlStat.HP = PlStat.HP + healAmount2;
                 System.Console.WriteLine($"\nHealed {healAmount2} amount of HP.");
                 Thread.Sleep(500);
@@ -318,7 +459,7 @@ while (true)
             }
             else if (PotionContains(Command) && potions > 0 && PlStat.HP < PlStat.BaseHP)
             {
-                int healAmount1 = Math.Min(20, PlStat.BaseHP - PlStat.HP);
+                int healAmount1 = Math.Min(30, PlStat.BaseHP - PlStat.HP);
                 PlStat.HP = PlStat.HP + healAmount1;
                 System.Console.WriteLine($"\nHealed {healAmount1} amount of HP.");
                 Thread.Sleep(500);
@@ -327,7 +468,7 @@ while (true)
                 TurnUsed = true;
             }
             
-            else if (PotionContains(Command) && (BiggerPotion > 0 || potions > 0) && PlStat.HP == PlStat.BaseHP)
+            else if (PotionContains(Command) && (BiggerPotion > 0 || potions > 0) && PlStat.HP >= PlStat.BaseHP)
             {
                 System.Console.WriteLine("Your HP is already full.");
                 continue;
@@ -341,11 +482,28 @@ while (true)
 
 
 
-            
+            // Missed(Enemy, PlStat, Floor, STRup, TurnUsed);
     
 
             if(PlStat.HP > 0 && TurnUsed == false)
             {
+                if (Enemy.SPD > PlStat.AGI)
+                {
+                    // Console.WriteLine($"Debug: SPD = {Enemy.SPD}, AGI = {PlStat.AGI}");
+                    int Chance = Enemy.SPD - PlStat.AGI; 
+                    int ChanceToMiss = Random.Shared.Next(0,Chance);
+                    // Console.WriteLine($"Debug: Chance = {Chance}, ChanceToMiss = {ChanceToMiss}");
+
+                    if (ChanceToMiss > 7)
+                    {
+                        if (Enemy.HP > 0 && TurnUsed == false)
+                        {
+                            System.Console.WriteLine($"You missed!");
+                            PlStat.ATK = 0;
+                        }
+                    }
+
+                }
                 Enemy.HP = Enemy.HP - PlStat.ATK;
                 System.Console.WriteLine($"You deal {PlStat.ATK} damage to the enemy!");
                 Thread.Sleep(500);
@@ -354,7 +512,7 @@ while (true)
             }
 
             
-            Missed(Enemy, PlStat, Floor, STRup);
+            
 
             
             if (!EnemyIsDead)
@@ -365,8 +523,12 @@ while (true)
 
                 if(EnemyIsDead)
                 {
+                    if(BossStage)
+                    {
+                        System.Console.WriteLine("\n\u001b[91m{Enemy.GetName}\u001b[0m has been defeated!!\n");
+                        BossStage = false;
+                    }
                     Thread.Sleep(500);
-                    coinsdrop = Random.Shared.Next(3 + Floor, 6 + Floor);
                     coins = coins + coinsdrop;
                     int potionsDrop = Random.Shared.Next(1,12);
                     if(potionsDrop == 1)
@@ -387,21 +549,157 @@ while (true)
 
                     if (Floor > 5)
                     {
-                        
                         int SafeZone = Random.Shared.Next(1, 10);
+                        int Void = Random.Shared.Next(1,20);
 
-                        if (SafeZone > 5)
+                        bool Shop;
+                        bool Continue;
+
+                        
+
+                        if (Void == 5)
                         {
+                            System.Console.WriteLine("_______________________________________________________________________________________________________\n");
+                            System.Console.WriteLine("You entered the \u001b[91m!£@$€!\u001b[0m.");
+                            System.Console.WriteLine("_______________________________________________________________________________________________________\n");
+                            Thread.Sleep(1000);
+                            System.Console.WriteLine("You feel unsafe here and you want to get out as fast as you can.");
+                            System.Console.WriteLine("\n\u001b[91m'Hello.'\u001b[0m \nHowever, a mysterious and chilling voice stops you in your tracks.");
+                            System.Console.WriteLine("This is unsafe for your life. Choose wisely whether you want to \u001b[32mlisten\u001b[0m to the voice or \u001b[32mget out\u001b[0m of here?\n");
+                            while (true)
+                            {
+                                Command = Console.ReadLine().ToLower();
+
+                                if (Command.Contains("lis"))
+                                {
+                                    System.Console.WriteLine("\nYou turn toward the source of the voice.");
+                                    Thread.Sleep(500);
+                                    System.Console.WriteLine("\u001b[91m'Good decision...'\u001b[0m");
+                                    Thread.Sleep(500);
+                                    System.Console.WriteLine("says the voice, as a shadowy figure appears before you.");
+                                    System.Console.WriteLine("\u001b[91m'Call me Mr. A. I'm here to help you upgrade your skills.'\u001b[0m\n");
+
+                                    System.Console.WriteLine("\u001b[33mTips: Write 'cancel' to refuse skill upgrades.\u001b[0m\n");
+
+                                    while(true)
+                                    {
+                                        List<string> UpgradeList = new() {};
+                                        if (Skill1 == false)
+                                        {
+                                            UpgradeList.Add("Guarding Thorns: 30 MaxHP.");
+                                        }
+                                        else if (Skill1 == true)
+                                        {
+                                            UpgradeList.Add("[Skill Already Upgraded]");
+                                        }
+                                        if (Skill2 == false)
+                                        {
+                                            UpgradeList.Add("Super Charge Attack: 70 MaxHP.");
+                                        }
+                                        else if (Skill1 == true)
+                                        {
+                                            UpgradeList.Add("[Skill Already Upgraded]");
+                                        }
+                                        System.Console.WriteLine("_______________________________________________________________________________________________________\n");
+                                        foreach (String Upgrade in UpgradeList)
+                                        {
+                                            System.Console.WriteLine(Upgrade);
+
+                                        }
+                                        System.Console.WriteLine("_______________________________________________________________________________________________________\n");
+                                        
+                                        Command = Console.ReadLine().ToLower();
+
+                                        if (Command.Contains("gua") || Command.Contains("tho") && Skill1 == false)
+                                        {
+                                            System.Console.WriteLine("\nUsing Guarding skill now reflects 3 damage back to the enemy.");
+                                            Shop = ShopConfirm();
+                                            if (Shop && PlStat.HP > 30)
+                                            {
+                                                PlStat.HP = PlStat.HP - 30;
+                                                PlStat.BaseHP = PlStat.BaseHP - 30;
+                                                Skill1 = true;
+                                                System.Console.WriteLine($"\nYour skill has been upgraded.\nYour HP is now [{PlStat.HP}/{PlStat.BaseHP}].");
+                                                Continue = ContinueShop();
+                                                if(Continue)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else if (Shop && PlStat.HP <= 30)
+                                            {
+                                                System.Console.WriteLine("\n\u001b[91m'Not enough HP.'\u001b[0m\n");
+                                                continue;
+                                            }
+                                            
+                                        }
+                                        if (Command.Contains("sup") || Command.Contains("cha") && Skill2== false)
+                                        {
+                                            System.Console.WriteLine("\nSuper Charge attack now deals x4 damage and counsumes 30 stamina.");
+                                            Shop = ShopConfirm();
+                                            if (Shop && PlStat.HP > 70)
+                                            {
+                                                PlStat.HP = PlStat.HP - 70;
+                                                PlStat.BaseHP = PlStat.BaseHP - 70;
+                                                Skill2 = true;
+                                                System.Console.WriteLine($"\nYour skill has been upgraded.\nYour HP is now [{PlStat.HP}/{PlStat.BaseHP}].");
+                                                Continue = ContinueShop();
+                                                if(Continue)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else if (Shop && PlStat.HP <= 70)
+                                            {
+                                                System.Console.WriteLine("\n\u001b[91m'Not enough HP.'\u001b[0m\n");
+                                                continue;
+                                            }
+                                            
+                                        }
+                                        if (Command.Contains("can"))
+                                        {
+                                            System.Console.WriteLine("\u001b[91m'You will regret this...'\u001b[0m said the voice before it faded away.");
+                                            break;
+                                        }
+                                    }
+                                    break;
+
+                                }
+                                if (Command.Contains('g') || Command.Contains('o'))
+                                {
+                                    System.Console.WriteLine("\nYou choose to turn back. Not any futher voice you can hear...\n");
+                                    break;
+                                }
+                                else
+                                {
+                                    System.Console.WriteLine("\nWhat do you want to do?\n");
+                                    continue;
+                                }
+                                
+                            }
+                        }
+
+                        else if (SafeZone > 5)
+                        {
+
                             System.Console.WriteLine("_______________________________________________________________________________________________________\n");
                             System.Console.WriteLine("You entered the Safe Zone.");
                             System.Console.WriteLine("_______________________________________________________________________________________________________\n");
                             Thread.Sleep(1000);
                             System.Console.WriteLine("\nThe Mystery Market has appeared!");
                             System.Console.WriteLine("You feel you can rest here. However, you're limited with the time in the Safe Zone.");
-                            System.Console.WriteLine("You need to choose wisely. Do you want to take a look at the \u001b[32mmarket\u001b[0m or \u001b[32mrest\u001b[0m to recover 70 stamina?\n");
+                            System.Console.WriteLine("You need to choose wisely. Do you want to take a look at the \u001b[32mmarket\u001b[0m or \u001b[32mrest\u001b[0m to recover 70 stamina and 20 HP?\n");
                             while (true)
                             {
-                                Command = Console.ReadLine();
+                                Command = Console.ReadLine().ToLower();
 
                                 if (Command.Contains("mar") || Command.Contains("sho"))
                                 {
@@ -417,8 +715,7 @@ while (true)
 
                                     while(true)
                                     {
-                                        bool Shop;
-                                        bool Continue;
+                                        
                                         
                                         List<(string, int)> ShopItems = new() {("Healing Potions", potionPrice),  ("Big Healing Potions", BigpotionPrice), ("ATK orb upgrade", ATKprice), ("HP orb upgrade", HPprice)};
                                         System.Console.WriteLine("_______________________________________________________________________________________________________\n");
@@ -437,7 +734,7 @@ while (true)
 
                                         if(PotionContains(Command) && Command.Contains("big"))
                                         {
-                                            System.Console.WriteLine("\nThe Bigger Healing Potion heals 50 amount of HP.");
+                                            System.Console.WriteLine("\nThe Bigger Healing Potion heals 70 amount of HP.");
                                             Shop = ShopConfirm();
                                             if(Shop && coins >= BigpotionPrice)
                                             {
@@ -462,7 +759,7 @@ while (true)
                                         }
                                         else if (PotionContains(Command))
                                         {
-                                            System.Console.WriteLine("\nThe Healing Potion heals 20 amount of HP.");
+                                            System.Console.WriteLine("\nThe Healing Potion heals 30 amount of HP.");
                                             Shop = ShopConfirm();
                                             if (Shop && coins >= potionPrice)
                                             {
@@ -520,15 +817,15 @@ while (true)
                                         }
                                         if (Command.Contains("hp"))
                                         {
-                                            System.Console.WriteLine("\nIncrease your HP by 10.");
+                                            System.Console.WriteLine("\nIncrease your HP by 20.");
                                             Shop = ShopConfirm();
                                             if (Shop && coins >= HPprice)
                                             {
                                                 coins -= HPprice;
                                                 
-                                                System.Console.WriteLine($"Your HP increased by 10.\nYou have {coins} Gold left.");
-                                                PlStat.HP += 10;
-                                                PlStat.BaseHP += 10;
+                                                System.Console.WriteLine($"Your HP increased by 20.\nYou have {coins} Gold left.");
+                                                PlStat.HP += 20;
+                                                PlStat.BaseHP += 20;
                                                 Continue = ContinueShop();
                                                 HPprice = HPprice + 20;
 
@@ -564,6 +861,8 @@ while (true)
                                 {
                                     System.Console.WriteLine("\nYou find some place to sleep. After you wake up the Mystery Market was gone.\n");
                                     PlStat.STM += 70;
+                                    int RestoreAmount = Math.Min(20, PlStat.BaseHP - PlStat.HP);
+                                    PlStat.HP += RestoreAmount;
                                     break;
                                 }
                                 else
@@ -573,7 +872,44 @@ while (true)
                                 }
                             }
                         }
+                        
+
                     }
+
+
+                    if (Floor == 10)
+                    {
+                        System.Console.WriteLine("\n_______________________________________________________________________________________________________\n");
+                        System.Console.WriteLine("Congratulation! This is really unexpect that you are able to reach the 10th floor...");
+                        Thread.Sleep(1000);
+                        System.Console.WriteLine("However, the way after this is really tough. Do you still wish to continue?\n");
+                        while (true)
+                        {
+                            yn = Console.ReadLine().ToLower();
+
+                            if(YesContains(yn))
+                            {
+                                System.Console.WriteLine("\nGood, you deserve to be a hero.\n");
+                                Thread.Sleep(2000);
+                                Console.Clear();
+                                BossStage = true;
+                                break;
+                            }
+                            else if(NoContains(yn))
+                            {
+                                System.Console.WriteLine("\nUnderstood. You can try it next time.\n");
+                                Thread.Sleep(2000);
+                                Console.Clear();
+                                GameOver = true;
+                                break;
+                            }
+                            else
+                            {
+                                System.Console.WriteLine("\nPlease answer the question.\n");
+                            }
+                        }
+                    }
+
 
 
 
@@ -611,6 +947,26 @@ while (true)
                 }
                 else
                 {
+                    if (PlStat.SPD > Enemy.AGI)
+                    {
+                        // Console.WriteLine($"Debug: SPD = {PlStat.SPD}, AGI = {Enemy.AGI}");
+                        int Chance = PlStat.SPD - Enemy.AGI;
+                        int ChanceToMiss = Random.Shared.Next(0, Chance);
+                        // Console.WriteLine($"Debug: Chance = {Chance}, ChanceToMiss = {ChanceToMiss}");
+                        if (ChanceToMiss > 5)
+                        {
+                            if (Enemy.HP > 0)
+                            {
+                                System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m missed!");
+                                Enemy.ATK = 0;
+                            }
+                        }
+                        else
+                        {
+                            Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
+                            
+                        }
+                    }
                     
                     if (Guarded)
                     {  
@@ -623,9 +979,28 @@ while (true)
                             Enemy.ATK = Enemy.ATK - 8;
                         }
                     }
+                    if (ThornGuarded  && Enemy.ATK != 0)
+                    {
+                        Enemy.HP -= 3;
+                        if (Enemy.ATK < 8)
+                        {
+                            Enemy.ATK = 0;
+                        }
+                        else if (Enemy.ATK >= 8)
+                        {
+                            Enemy.ATK = Enemy.ATK - 8;
+                        }
+                    }
+                    
                     Guarded = false;
                     PlStat.HP = PlStat.HP - Enemy.ATK;
                     System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m deals {Enemy.ATK} damage to you!");
+                    if (ThornGuarded  && Enemy.ATK != 0)
+                    {
+                        System.Console.WriteLine("The mysterious power from your shield strikes the enemy back with 3 damage.");
+                        System.Console.WriteLine($"\n\u001b[91m{Enemy.GetName}\u001b[0m's HP : [{Enemy.HP}/{Enemy.BaseHP}]\n");
+                    }
+                    
                     Thread.Sleep(500);
                     System.Console.WriteLine($"\n\u001b[36m{PlStat.GetName}\u001b[0m's HP: [{PlStat.HP}/{PlStat.BaseHP}]");
                     System.Console.WriteLine($"\u001b[36m{PlStat.GetName}\u001b[0m's Stamina: [{PlStat.STM}/{PlStat.BaseSTM}]\n");
@@ -645,32 +1020,52 @@ while (true)
 
 
 
-static void Missed(Char Enemy, Char PlStat, int Floor, int STRup)
+// static void Missed(Char Enemy, Char PlStat, int Floor, int STRup, bool TurnUsed)
 
-{   
+// {   
 
 
-    if (PlStat.SPD > Enemy.AGI)
-    {
-        // Console.WriteLine($"Debug: SPD = {PlStat.SPD}, AGI = {Enemy.AGI}");
-        int Chance = PlStat.SPD - Enemy.AGI;
-        int ChanceToMiss = Random.Shared.Next(0, Chance);
-        // Console.WriteLine($"Debug: Chance = {Chance}, ChanceToMiss = {ChanceToMiss}");
-        if (ChanceToMiss > 5)
-        {
-            if (PlStat.HP > 0 || Enemy.HP > 0)
-            {
-                System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m missed!");
-                Enemy.ATK = 0;
-            }
-        }
-        else
-        {
-            Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
-            PlStat.ATK = Random.Shared.Next(10 + STRup, 15 + STRup);
-        }
-    }
-}
+//     if (PlStat.SPD > Enemy.AGI)
+//     {
+//         // Console.WriteLine($"Debug: SPD = {PlStat.SPD}, AGI = {Enemy.AGI}");
+//         int Chance = PlStat.SPD - Enemy.AGI;
+//         int ChanceToMiss = Random.Shared.Next(0, Chance);
+//         // Console.WriteLine($"Debug: Chance = {Chance}, ChanceToMiss = {ChanceToMiss}");
+//         if (ChanceToMiss > 5)
+//         {
+//             if (Enemy.HP > 0)
+//             {
+//                 System.Console.WriteLine($"\u001b[91m{Enemy.GetName}\u001b[0m missed!");
+//                 Enemy.ATK = 0;
+//             }
+//         }
+//         else
+//         {
+//             Enemy.ATK = Random.Shared.Next(2 +(Floor - 1), 5 + (Floor - 1));
+            
+//         }
+//     }
+//     if (Enemy.SPD > PlStat.AGI)
+//     {
+//         int Chance = Enemy.SPD - PlStat.AGI; 
+//         int ChanceToMiss = Random.Shared.Next(0,Chance);
+
+//         if (ChanceToMiss > 5)
+//         {
+//             if (Enemy.HP > 0 && TurnUsed == false)
+//             {
+//                 System.Console.WriteLine($"You missed!");
+//                 PlStat.ATK = 0;
+//             }
+//         }
+//         else
+//         {
+//             PlStat.ATK = Random.Shared.Next(10 + STRup, 15 + STRup);
+//         }
+
+//     }
+
+// }
 
 static bool PotionContains(string Command)
 {
@@ -736,3 +1131,13 @@ static bool ContinueShop()
         }
     }
 }
+
+static string EnemiesName()
+{
+    List<string> EnemyName = new List<string>() {"Rat", "Goblin", "Slime"} ;
+
+    int R = Random.Shared.Next(EnemyName.Count);
+
+    return EnemyName[R];
+
+} 
